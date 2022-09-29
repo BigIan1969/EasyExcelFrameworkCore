@@ -40,9 +40,7 @@ namespace EasyExcelFramework
 
         private int currentnownumber;
 
-        //Logic helpers
-        public bool ElseActive;
-        public string SwitchVal;
+
 
         public EasyExcelF(string filename = "default.xlsx")
         {
@@ -106,6 +104,9 @@ namespace EasyExcelFramework
             {
                 worksheet = firstworksheet;
             }
+            if (string.IsNullOrEmpty(worksheet))
+                throw new InvalidDataException("Cannot call blank worksheet");
+
             if (passedparameters is null)
             {
                 passedparameters = new string[1];
@@ -129,56 +130,36 @@ namespace EasyExcelFramework
                 this.currentnownumber++;
                 if (execrow[currentindent] == null)
                     throw new ArgumentNullException(nameof(execrow));
-                
+
                 //Convert ItemArray into string array
                 this.currentdatarow = Array.ConvertAll(execrow.ItemArray, x => x.ToString());
 
                 int ind = this.currentindent + 1;
                 string[] parms = this.currentdatarow[ind..];
 
-                if (string.IsNullOrEmpty(SwitchVal))
-                { //Process Normally
-                    if (registeredactions.ContainsKey(execrow[currentindent].ToString()))
-                    {
-                        bool result = registeredactions[execrow[currentindent].ToString()](this, parms);
-                    }
-                    else
-                    {
-                        //If it's a worksheet
-                        if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()))
-                        {
-                            Execute(execrow[0].ToString(), parms);
 
-                        }
-                        else
-                        {
-                            //assign variable
-                            Locals[execrow[0 + currentindent].ToString()] = execrow[1 + currentindent].ToString();
-                        }
-                    }
+                if (registeredactions.ContainsKey(execrow[currentindent].ToString()))
+                {
+                    bool result = registeredactions[execrow[currentindent].ToString()](this, parms);
                 }
                 else
-                { //process switch
-                    if (execrow[currentindent].ToString() == SwitchVal)
+                {
+                    //If it's a worksheet
+                    if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()))
                     {
-                        ind += 2;
-                        EasyExcelF CalledTestcase = new EasyExcelF(this);
-                        CalledTestcase.Execute(execrow[currentindent+1].ToString());
-                        CalledTestcase = null;
-                    }
-                    else if (execrow[currentindent].ToString().ToUpper()=="ELSE")
-                    {
-                        ind += 2;
-                        ElseActive = false;
-                        EasyExcelF CalledTestcase = new EasyExcelF(this);
-                        CalledTestcase.Execute(execrow[currentindent + 1].ToString());
-                        CalledTestcase = null;
+                        calltestcase(this.currentdatarow);
+                        //if (parms.Length > 1)
+                        //    Execute(execrow[0].ToString(), parms);
+                        //else
+                        //    Execute(execrow[0].ToString());
                     }
                     else
                     {
-                        ElseActive = true;
+                        //assign variable
+                        Locals[execrow[0 + currentindent].ToString()] = execrow[1 + currentindent].ToString();
                     }
                 }
+
             }
         }
 
@@ -239,7 +220,44 @@ namespace EasyExcelFramework
             registeredactions ??= new Dictionary<string, Func<EasyExcelF, string[], bool>>(StringComparer.OrdinalIgnoreCase);
             registeredactions[action]=passedfunction;
         }
+        public void calltestcase(string[] parms)
+        {
+            if (parms[0].ToUpper() != "CALL")
+            {  //call testcase in same scope
+                switch (parms.Length)
+                {
+                    case 0:
+                        throw new ArgumentOutOfRangeException("Expected Worksheet");
+                    case 1:
+                        this.Execute(parms[0]);
+                        break;
+                    default:
+                        this.Execute(parms[0], parms[0..]);
+                        break;
+                }
+            }
+            else
+            {  //call testcase in new scope
+                callnewtestcase(parms[1..]);
+            }
 
+        }
+        public void callnewtestcase(string[] parms)
+        {
+            EasyExcelF CalledTestcase = new EasyExcelF(this);
+            switch (parms.Length)
+            {
+                case 0:
+                    throw new ArgumentOutOfRangeException("Expected Worksheet");
+                case 1:
+                    CalledTestcase.Execute(parms[0]);
+                    break;
+                default:
+                    CalledTestcase.Execute(parms[0], parms[0..]);
+                    break;
+            }
+
+        }
     }
 
 }
