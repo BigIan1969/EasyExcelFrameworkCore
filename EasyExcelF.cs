@@ -145,13 +145,9 @@ namespace EasyExcelFramework
                 else
                 {
                     //If it's a worksheet
-                    if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()))
+                    if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()) || execrow[0 + currentindent].ToString().ToUpper()=="CALL")
                     {
                         calltestcase(this.currentdatarow);
-                        //if (parms.Length > 1)
-                        //    Execute(execrow[0].ToString(), parms);
-                        //else
-                        //    Execute(execrow[0].ToString());
                     }
                     else
                     {
