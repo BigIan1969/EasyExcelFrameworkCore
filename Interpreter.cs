@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using DynamicExpresso;
+﻿using System.Collections;
 
 namespace EasyExcelFramework
 {
-    internal static class InterpreterClass
+    public class InterpreterClass
     {
-        public static bool Eval(EasyExcelF ee, string expression, string[] parms)
+        public bool Eval(EasyExcelF ee, string expression, string[] parms)
         {
             DynamicExpresso.Interpreter DExpresso = new DynamicExpresso.Interpreter();
             foreach (DictionaryEntry variable in ee.Environ)
@@ -29,7 +22,7 @@ namespace EasyExcelFramework
             return (bool)DExpresso.Eval(expression);
 
         }
-        public static string EvalToString(EasyExcelF ee, string expression, string[] parms)
+        public string EvalToString(EasyExcelF ee, string expression, string[] parms)
         {
             DynamicExpresso.Interpreter DExpresso = new DynamicExpresso.Interpreter();
             foreach (DictionaryEntry variable in ee.Environ)

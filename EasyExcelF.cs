@@ -1,7 +1,7 @@
 ﻿using ExcelDataReader;
 using System.Collections;
 using System.Data;
-using System.Runtime.CompilerServices;
+
 
 namespace EasyExcelFramework
 {
@@ -9,7 +9,10 @@ namespace EasyExcelFramework
     {
         //Dictionary of Worksheets
         private Dictionary<string, DataTable>? worksheets;
-        public Dictionary<string, DataTable>? Worksheets { get => worksheets;}
+        public Dictionary<string, DataTable>? Worksheets { get => worksheets; }
+
+        private InterpreterClass inter;
+        public InterpreterClass Inter { get => inter; set => inter = value; }
 
         //worksheet property
         private string worksheet;
@@ -35,7 +38,7 @@ namespace EasyExcelFramework
 
         private string[] currentdatarow;
 
-        public string[] Currentdatarow { get => currentdatarow;  }
+        public string[] Currentdatarow { get => currentdatarow; }
         public int Currentnownumber { get => currentnownumber; }
 
         private int currentnownumber;
@@ -48,12 +51,15 @@ namespace EasyExcelFramework
             EECore eec = new EECore(this);
             EELogic eel = new EELogic(this);
 
+            //Instanciate Interpreter
+            inter = new InterpreterClass();
+
             //Instanciate worksheets
             worksheets = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
 
             //get environment variables
-            Environ= Environment.GetEnvironmentVariables();
-            
+            Environ = Environment.GetEnvironmentVariables();
+
             //set indent level
             currentindent = 0;
             //Instanciate variables
@@ -71,6 +77,9 @@ namespace EasyExcelFramework
             EECore eec = new EECore(this);
             EELogic eel = new EELogic(this);
 
+            //Instanciate Interpreter
+            inter = new InterpreterClass();
+
             //Instanciate worksheets
             worksheets = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
             currentindent = 0;
@@ -86,6 +95,9 @@ namespace EasyExcelFramework
         public EasyExcelF(EasyExcelF parent)
         {
             registeredactions = parent.registeredactions;
+
+            //Instanciate Interpreter
+            inter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = parent.worksheets;
@@ -145,7 +157,7 @@ namespace EasyExcelFramework
                 else
                 {
                     //If it's a worksheet
-                    if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()) || execrow[0 + currentindent].ToString().ToUpper()=="CALL")
+                    if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()) || execrow[0 + currentindent].ToString().ToUpper() == "CALL")
                     {
                         calltestcase(this.currentdatarow);
                     }
@@ -210,11 +222,11 @@ namespace EasyExcelFramework
         }
 
         //register addon
-        public void RegisterMethod(string action , Func<EasyExcelF , string[], bool> passedfunction)
+        public void RegisterMethod(string action, Func<EasyExcelF, string[], bool> passedfunction)
         {
             //if null assign dict
             registeredactions ??= new Dictionary<string, Func<EasyExcelF, string[], bool>>(StringComparer.OrdinalIgnoreCase);
-            registeredactions[action]=passedfunction;
+            registeredactions[action] = passedfunction;
         }
         public void calltestcase(string[] parms)
         {

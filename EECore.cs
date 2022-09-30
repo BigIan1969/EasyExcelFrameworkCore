@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EasyExcelFramework
+﻿namespace EasyExcelFramework
 {
     internal class EECore
     {
@@ -61,7 +55,7 @@ namespace EasyExcelFramework
                 //assign variable
                 try
                 {
-                    ee.Locals[parms[0].ToString()] = (string)InterpreterClass.EvalToString(ee, parms[1].ToString(),parms).ToString();
+                    ee.Locals[parms[0].ToString()] = ee.Inter.EvalToString(ee, parms[1].ToString(), parms).ToString();
                 }
                 catch
                 {
@@ -79,7 +73,7 @@ namespace EasyExcelFramework
             //assign variable
             try
             {
-                ee.Globals[parms[0].ToString()] = (string)InterpreterClass.EvalToString(ee, parms[1].ToString(), parms);
+                ee.Globals[parms[0].ToString()] = ee.Inter.EvalToString(ee, parms[1].ToString(), parms);
 
             }
             catch

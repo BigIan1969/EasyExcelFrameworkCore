@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EasyExcelFramework
+﻿namespace EasyExcelFramework
 {
     internal class EELogic
     {
@@ -20,7 +14,7 @@ namespace EasyExcelFramework
         }
         private bool localif(EasyExcelF ee, string[] parms)
         {
-            if (InterpreterClass.Eval(ee, parms[0].ToString(), parms[1..]))
+            if (ee.Inter.Eval(ee, parms[0].ToString(), parms[1..]))
             {
                 ElseActive = false;
                 ee.calltestcase(parms[1..]);
@@ -45,7 +39,7 @@ namespace EasyExcelFramework
         {
             try
             {
-                SwitchVal = InterpreterClass.EvalToString(ee, parms[0], parms[1..]).ToString();
+                SwitchVal = ee.Inter.EvalToString(ee, parms[0], parms[1..]).ToString();
 
             }
             catch
