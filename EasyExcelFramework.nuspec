@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EasyExcelFramework</id>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <title>EasyExcelFramework(Core)</title>
     <authors>Ian Holdsworth</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
