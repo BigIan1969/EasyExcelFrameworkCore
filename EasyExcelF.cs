@@ -11,8 +11,7 @@ namespace EasyExcelFramework
         private Dictionary<string, DataTable>? worksheets;
         public Dictionary<string, DataTable>? Worksheets { get => worksheets; }
 
-        private InterpreterClass inter;
-        public InterpreterClass Inter { get => inter; set => inter = value; }
+        public InterpreterClass Interpreter;
 
         //worksheet property
         private string worksheet;
@@ -52,7 +51,7 @@ namespace EasyExcelFramework
             EELogic eel = new EELogic(this);
 
             //Instanciate Interpreter
-            inter = new InterpreterClass();
+            Inter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
@@ -64,6 +63,9 @@ namespace EasyExcelFramework
             currentindent = 0;
             //Instanciate variables
             Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            if (Globals == null)
+                Globals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             Populateworksheets(filename);
             if (string.IsNullOrEmpty(firstworksheet))
@@ -78,7 +80,7 @@ namespace EasyExcelFramework
             EELogic eel = new EELogic(this);
 
             //Instanciate Interpreter
-            inter = new InterpreterClass();
+            Inter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
@@ -86,6 +88,8 @@ namespace EasyExcelFramework
 
             //Instanciate variables
             Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (Globals == null)
+                Globals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             Populateworksheets("Default.xlsx");
             if (string.IsNullOrEmpty(firstworksheet))
@@ -97,7 +101,7 @@ namespace EasyExcelFramework
             registeredactions = parent.registeredactions;
 
             //Instanciate Interpreter
-            inter = new InterpreterClass();
+            Inter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = parent.worksheets;
