@@ -14,7 +14,7 @@
         }
         private bool localif(EasyExcelF ee, string[] parms)
         {
-            if (ee.Inter.Eval(ee, parms[0].ToString(), parms[1..]))
+            if (ee.Interpreter.Eval(ee, parms[0].ToString(), parms[1..]))
             {
                 ElseActive = false;
                 ee.calltestcase(parms[1..]);
@@ -39,7 +39,7 @@
         {
             try
             {
-                SwitchVal = ee.Inter.EvalToString(ee, parms[0], parms[1..]).ToString();
+                SwitchVal = ee.Interpreter.EvalToString(ee, parms[0], parms[1..]).ToString();
 
             }
             catch

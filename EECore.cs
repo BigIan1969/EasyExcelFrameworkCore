@@ -11,10 +11,20 @@
             ee.RegisterMethod("LOAD FILE", loadfile);
             ee.RegisterMethod("SET LOCAL", setlocal);
             ee.RegisterMethod("SET GLOBAL", setglobal);
+            ee.RegisterMethod("PARAMETERS", parameters);
+
         }
         private bool comments(EasyExcelF ee, string[] parms)
         {
             //Ignore Comments
+            return true;
+        }
+        private bool parameters(EasyExcelF ee, string[] parms)
+        {
+            for (int i = 0; i < parms.Length - 1; i++)
+            {
+                ee.Locals[parms[i]] = ee.passedparams[i + 1];
+            }
             return true;
         }
         private bool stop(EasyExcelF ee, string[] parms)
@@ -55,7 +65,7 @@
                 //assign variable
                 try
                 {
-                    ee.Locals[parms[0].ToString()] = ee.Inter.EvalToString(ee, parms[1].ToString(), parms).ToString();
+                    ee.Locals[parms[0].ToString()] = ee.Interpreter.EvalToString(ee, parms[1].ToString(), parms).ToString();
                 }
                 catch
                 {
@@ -73,7 +83,7 @@
             //assign variable
             try
             {
-                ee.Globals[parms[0].ToString()] = ee.Inter.EvalToString(ee, parms[1].ToString(), parms);
+                ee.Globals[parms[0].ToString()] = ee.Interpreter.EvalToString(ee, parms[1].ToString(), parms);
 
             }
             catch

@@ -38,20 +38,28 @@ namespace EasyExcelFramework
         private string[] currentdatarow;
 
         public string[] Currentdatarow { get => currentdatarow; }
-        public int Currentnownumber { get => currentnownumber; }
+        public int Currentrownumber { get => currentrownumber; }
 
-        private int currentnownumber;
+        private int currentrownumber;
 
+        public string[] passedparams;
 
+        public List<TestStepsLogEntry> StepHistory;
 
-        public EasyExcelF(string filename = "default.xlsx")
+        public List<TestLog> TestHistory;
+
+        public Func<string, string> screenshot;
+
+        private string defaultpath;
+
+        public EasyExcelF(string filename = "default.xlsx", string defaultpath = null)
         {
             //Add core
             EECore eec = new EECore(this);
             EELogic eel = new EELogic(this);
 
             //Instanciate Interpreter
-            Inter = new InterpreterClass();
+            Interpreter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
@@ -70,7 +78,15 @@ namespace EasyExcelFramework
             Populateworksheets(filename);
             if (string.IsNullOrEmpty(firstworksheet))
                 throw (new Exception("First worksheet not found: " + filename));
-            //Execute(firstworksheet, new string[1]);
+            TestHistory = new List<TestLog>();
+            if (defaultpath == null)
+            {
+                this.defaultpath = Directory.GetCurrentDirectory();
+            }
+            else
+            {
+                this.defaultpath = defaultpath;
+            }
         }
         public EasyExcelF()
         {
@@ -80,11 +96,14 @@ namespace EasyExcelFramework
             EELogic eel = new EELogic(this);
 
             //Instanciate Interpreter
-            Inter = new InterpreterClass();
+            Interpreter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
             currentindent = 0;
+
+            //get environment variables
+            Environ = Environment.GetEnvironmentVariables();
 
             //Instanciate variables
             Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -94,23 +113,27 @@ namespace EasyExcelFramework
             Populateworksheets("Default.xlsx");
             if (string.IsNullOrEmpty(firstworksheet))
                 throw (new Exception("First worksheet not found: Default.xslx"));
-            //Execute(firstworksheet, new string[1]);
+            TestHistory = new List<TestLog>();
+            this.defaultpath = Directory.GetCurrentDirectory();
         }
         public EasyExcelF(EasyExcelF parent)
         {
             registeredactions = parent.registeredactions;
 
             //Instanciate Interpreter
-            Inter = new InterpreterClass();
+            Interpreter = new InterpreterClass();
 
             //Instanciate worksheets
             worksheets = parent.worksheets;
             currentindent = 0;
             Globals = parent.Globals;
 
+            Environ = parent.Environ;
+
             //Instanciate variables
             Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
+            TestHistory = new List<TestLog>();
+            this.defaultpath = Directory.GetCurrentDirectory();
         }
         public void Execute(string worksheet = null, string[] passedparameters = null)
         {
@@ -127,7 +150,7 @@ namespace EasyExcelFramework
             {
                 passedparameters = new string[1];
             }
-
+            passedparams = passedparameters;
             //handle null worksheets
             if (worksheets == null)
             {
@@ -138,12 +161,13 @@ namespace EasyExcelFramework
 
             this.worksheet = worksheet;
 
-            this.currentnownumber = 0;
+            this.currentrownumber = 0;
 
             //loop through specified worksheet
             foreach (DataRow execrow in worksheets[worksheet].Rows)
             {
-                this.currentnownumber++;
+                TestStepsLogEntry steplog = new TestStepsLogEntry();
+                this.currentrownumber++;
                 if (execrow[currentindent] == null)
                     throw new ArgumentNullException(nameof(execrow));
 
@@ -152,26 +176,64 @@ namespace EasyExcelFramework
 
                 int ind = this.currentindent + 1;
                 string[] parms = this.currentdatarow[ind..];
-
-
-                if (registeredactions.ContainsKey(execrow[currentindent].ToString()))
+                string[] processedparams = new string[parms.Length];
+                steplog.Started = DateTime.Now;
+                steplog.Outcome = false;
+                steplog.Action = execrow[currentindent].ToString();
+                steplog.parameters = parms;
+                steplog.worksheet = worksheet;
+                steplog.Rownumber = Currentrownumber;
+                if (StepHistory != null)
+                    StepHistory.Add(steplog);
+                for (int i = 0; i < parms.Length; i++)
                 {
-                    bool result = registeredactions[execrow[currentindent].ToString()](this, parms);
-                }
-                else
-                {
-                    //If it's a worksheet
-                    if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()) || execrow[0 + currentindent].ToString().ToUpper() == "CALL")
+                    if (parms[i].StartsWith("="))
                     {
-                        calltestcase(this.currentdatarow);
+                        try
+                        {
+                            processedparams[i] = Interpreter.EvalToString(this, parms[i][1..], passedparameters);
+                        }
+                        catch
+                        {
+                            processedparams[i] = parms[i];
+                        }
                     }
                     else
                     {
-                        //assign variable
-                        Locals[execrow[0 + currentindent].ToString()] = execrow[1 + currentindent].ToString();
+                        processedparams[i] = parms[i];
                     }
                 }
-
+                try
+                {
+                    if (registeredactions.ContainsKey(execrow[currentindent].ToString()))
+                    {
+                        bool result = registeredactions[execrow[currentindent].ToString()](this, processedparams);
+                    }
+                    else
+                    {
+                        //If it's a worksheet
+                        if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()) ||
+                                                   execrow[0 + currentindent].ToString().ToUpper() == "CALL" ||
+                                                   execrow[0 + currentindent].ToString().ToUpper() == "TEST")
+                        {
+                            calltestcase(this.currentdatarow);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Unrecognised Action: " + execrow[currentindent].ToString());
+                        }
+                    }
+                    steplog.End = DateTime.Now;
+                    steplog.Outcome = true;
+                }
+                catch (Exception ex)
+                {
+                    steplog.End = DateTime.Now;
+                    steplog.Ex = ex;
+                    if (ex.InnerException != null)
+                        System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                    throw;
+                }
             }
         }
 
@@ -232,29 +294,40 @@ namespace EasyExcelFramework
             registeredactions ??= new Dictionary<string, Func<EasyExcelF, string[], bool>>(StringComparer.OrdinalIgnoreCase);
             registeredactions[action] = passedfunction;
         }
+        public void RegisterScreenShot(Func<string, string> sshot)
+        {
+            this.screenshot = sshot;
+        }
         public void calltestcase(string[] parms)
         {
-            if (parms[0].ToUpper() != "CALL")
-            {  //call testcase in same scope
-                switch (parms.Length)
-                {
-                    case 0:
-                        throw new ArgumentOutOfRangeException("Expected Worksheet");
-                    case 1:
-                        this.Execute(parms[0]);
-                        break;
-                    default:
-                        this.Execute(parms[0], parms[0..]);
-                        break;
-                }
-            }
-            else
-            {  //call testcase in new scope
-                callnewtestcase(parms[1..]);
+            switch (parms[0].ToUpper())
+            {
+                case "CALL":
+                    //call testcase in new scope
+                    callnewtestcase(parms[1..]);
+                    break;
+                case "TEST":
+                    //call testcase in new scope
+                    test(parms[1..]);
+                    break;
+                default:
+                    //call testcase in same scope
+                    switch (parms.Length)
+                    {
+                        case 0:
+                            throw new ArgumentOutOfRangeException("Expected Worksheet");
+                        case 1:
+                            this.Execute(parms[0]);
+                            break;
+                        default:
+                            this.Execute(parms[0], parms[0..]);
+                            break;
+                    }
+                    break;
             }
 
         }
-        public void callnewtestcase(string[] parms)
+        private void callnewtestcase(string[] parms)
         {
             EasyExcelF CalledTestcase = new EasyExcelF(this);
             switch (parms.Length)
@@ -268,6 +341,47 @@ namespace EasyExcelFramework
                     CalledTestcase.Execute(parms[0], parms[0..]);
                     break;
             }
+
+        }
+        private void test(string[] parms)
+        {
+            if (StepHistory != null)
+                throw new InvalidOperationException("Cannot Test within a test");
+            EasyExcelF CalledTestcase = new EasyExcelF(this);
+            CalledTestcase.StepHistory = new List<TestStepsLogEntry>();
+            TestLog tl = new TestLog();
+            tl.Started = DateTime.Now;
+            tl.Test = parms[0];
+            tl.parameters = parms;
+            tl.Outcome = true;
+            tl.StepHistory = CalledTestcase.StepHistory;
+            try
+            {
+                switch (parms.Length)
+                {
+                    case 0:
+                        throw new ArgumentOutOfRangeException("Expected Worksheet");
+                    case 1:
+                        CalledTestcase.Execute(parms[0]);
+                        break;
+                    default:
+                        CalledTestcase.Execute(parms[0], parms[0..]);
+                        break;
+                }
+            }
+            catch
+            {
+                tl.Outcome = false;
+                tl.End = DateTime.Now;
+                if (this.screenshot != null)
+                {
+                    tl.StepHistory[tl.StepHistory.Count-1].screenshot = this.screenshot(defaultpath);
+                }
+                this.TestHistory.Add(tl);
+                throw;
+            }
+            tl.End = DateTime.Now;
+            this.TestHistory.Add(tl);
 
         }
     }
