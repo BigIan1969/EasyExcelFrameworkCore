@@ -7,6 +7,7 @@ namespace EasyExcelFramework
 {
     public class EasyExcelF
     {
+        private EasyExcelF parent;
         //Dictionary of Worksheets
         private Dictionary<string, DataTable>? worksheets;
         public Dictionary<string, DataTable>? Worksheets { get => worksheets; }
@@ -48,10 +49,51 @@ namespace EasyExcelFramework
 
         public List<TestLog> TestHistory;
 
-        public Func<string, string> screenshot;
-
+        public Func<string, string> Screenshot { get => screenshot; set => screenshot = value; }
+        private Func<string, string> screenshot;
+        private Func<EasyExcelF, string> report;
         private string defaultpath;
+        public void finish()
+        {
+            Console.WriteLine("Passed: " + TestHistory.Count(n => n.Outcome));
+            Console.WriteLine("Failed: " + TestHistory.Count(n => !n.Outcome));
+            Console.WriteLine();
 
+            foreach (var t in TestHistory)
+            {
+                Console.WriteLine(string.Format("Test {0,-20} {1,4} {2} {3} {4}",
+                    t.Test,
+                    t.Outcome ? "Pass" : "Fail",
+                    t.Started,
+                    t.End - t.Started,
+                    string.Join(", ", t.parameters)
+                    ));
+            }
+            Console.WriteLine();
+            Console.WriteLine("Detail:");
+            Console.WriteLine();
+            foreach (var t in TestHistory)
+            {
+                Console.WriteLine(string.Format("Test {0,-20} {1,4} {2} {3} {4}",
+                    t.Test,
+                    t.Outcome ? "Pass" : "Fail",
+                    t.Started,
+                    t.End - t.Started,
+                    string.Join(", ", t.parameters)
+                    ));
+
+                foreach (var s in t.StepHistory)
+                {
+                    Console.WriteLine(string.Format("\tStep {0} {1} {2,-20} {3} {4}",
+                        s.Started,
+                        s.End-s.Started,
+                        s.Action,
+                        string.Join(", ",s.parameters),
+                        t.Outcome ? "Pass" : "Fail"
+                        ));
+                }
+            }
+        }
         public EasyExcelF(string filename = "default.xlsx", string defaultpath = null)
         {
             //Add core
@@ -87,6 +129,10 @@ namespace EasyExcelFramework
             {
                 this.defaultpath = defaultpath;
             }
+            Console.WriteLine("Easy Excel Framework");
+            Console.WriteLine("====================");
+            Console.WriteLine("\nTest Initialised: " + DateTime.Now);
+            Console.WriteLine(string.Format("File: {0}\n",filename));
         }
         public EasyExcelF()
         {
@@ -115,9 +161,15 @@ namespace EasyExcelFramework
                 throw (new Exception("First worksheet not found: Default.xslx"));
             TestHistory = new List<TestLog>();
             this.defaultpath = Directory.GetCurrentDirectory();
+            Console.WriteLine("Easy Excel Framework");
+            Console.WriteLine("====================");
+            Console.WriteLine("\nTest Initialised: " + DateTime.Now);
+            Console.WriteLine("File: Default.xlsx\n");
+
         }
         public EasyExcelF(EasyExcelF parent)
         {
+            this.parent = parent;
             registeredactions = parent.registeredactions;
 
             //Instanciate Interpreter
@@ -234,6 +286,7 @@ namespace EasyExcelFramework
                         System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                     throw;
                 }
+
             }
         }
 
@@ -293,10 +346,6 @@ namespace EasyExcelFramework
             //if null assign dict
             registeredactions ??= new Dictionary<string, Func<EasyExcelF, string[], bool>>(StringComparer.OrdinalIgnoreCase);
             registeredactions[action] = passedfunction;
-        }
-        public void RegisterScreenShot(Func<string, string> sshot)
-        {
-            this.screenshot = sshot;
         }
         public void calltestcase(string[] parms)
         {
@@ -369,21 +418,25 @@ namespace EasyExcelFramework
                         break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 tl.Outcome = false;
                 tl.End = DateTime.Now;
-                if (this.screenshot != null)
+                if (this.Screenshot != null)
                 {
-                    tl.StepHistory[tl.StepHistory.Count-1].screenshot = this.screenshot(defaultpath);
+                    tl.StepHistory[tl.StepHistory.Count-1].screenshot = this.Screenshot(defaultpath);
                 }
-                this.TestHistory.Add(tl);
-                throw;
+                tl.StepHistory[tl.StepHistory.Count - 1].Ex = ex;
+
+                //this.TestHistory.Add(tl);
+                //throw;
             }
             tl.End = DateTime.Now;
             this.TestHistory.Add(tl);
 
         }
+        public void RegisterScreenShot(Func<string, string> sshot) => Screenshot = sshot;
+        public void RegisterReport(Func<EasyExcelF, string> Report) => this.report = Report;
     }
 
 }
