@@ -12,6 +12,8 @@
             ee.RegisterMethod("SET LOCAL", setlocal);
             ee.RegisterMethod("SET GLOBAL", setglobal);
             ee.RegisterMethod("PARAMETERS", parameters);
+            ee.RegisterMethod("PAUSE", pause);
+            ee.RegisterMethod("SET RANDOM", setrandom);
 
         }
         private bool comments(EasyExcelF ee, string[] parms)
@@ -19,11 +21,18 @@
             //Ignore Comments
             return true;
         }
+        private bool pause(EasyExcelF ee, string[] parms)
+        {
+            //pause in seconds
+            Thread.Sleep((int)(float.Parse(parms[0].ToString())*1000));
+            return true;
+        }
         private bool parameters(EasyExcelF ee, string[] parms)
         {
             for (int i = 0; i < parms.Length - 1; i++)
             {
-                ee.Locals[parms[i]] = ee.passedparams[i + 1];
+                if (!string.IsNullOrEmpty(parms[i]))
+                    ee.Locals[parms[i]] = ee.passedparams[i];
             }
             return true;
         }
@@ -91,6 +100,32 @@
                 ee.Globals[parms[0].ToString()] = parms[1].ToString();
 
             }
+            return true;
+        }
+        private bool setrandom(EasyExcelF ee, string[] parms)
+        {
+            //check it has a variable name and a value
+            if (ee.Worksheets[ee.Worksheet].Columns.Count - ee.CurrentIndent < 2)
+            {
+                throw new IndexOutOfRangeException("Local Variable cannot be blank or null");
+            }
+            else
+            {
+                Random rand = new Random();
+                //assign variable
+                try
+                {
+                    int minval = int.Parse(parms[1]);
+                    int maxval = int.Parse(parms[2]);
+                    ee.Locals[parms[0].ToString()] = rand.Next(minval,maxval).ToString();
+                }
+                catch
+                {
+                    int maxval = int.Parse(parms[1]);
+                    ee.Locals[parms[0].ToString()] = rand.Next(maxval).ToString();
+                }
+            }
+
             return true;
         }
     }

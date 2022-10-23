@@ -7,7 +7,7 @@ namespace EasyExcelFramework
 {
     public class EasyExcelF
     {
-        private EasyExcelF parent;
+        public EasyExcelF parent;
         //Dictionary of Worksheets
         private Dictionary<string, DataTable>? worksheets;
         public Dictionary<string, DataTable>? Worksheets { get => worksheets; }
@@ -48,6 +48,9 @@ namespace EasyExcelFramework
         public List<TestStepsLogEntry> StepHistory;
 
         public List<TestLog> TestHistory;
+
+        public bool loopactive;
+        public bool breakoutofloop;
 
         public Func<string, string> Screenshot { get => screenshot; set => screenshot = value; }
         private Func<string, string> screenshot;
@@ -99,6 +102,7 @@ namespace EasyExcelFramework
             //Add core
             EECore eec = new EECore(this);
             EELogic eel = new EELogic(this);
+            EEAssert eea = new EEAssert(this);
 
             //Instanciate Interpreter
             Interpreter = new InterpreterClass();
@@ -140,6 +144,7 @@ namespace EasyExcelFramework
             //Add core
             EECore eec = new EECore(this);
             EELogic eel = new EELogic(this);
+            EEAssert eea = new EEAssert(this);
 
             //Instanciate Interpreter
             Interpreter = new InterpreterClass();
@@ -229,12 +234,25 @@ namespace EasyExcelFramework
                 int ind = this.currentindent + 1;
                 string[] parms = this.currentdatarow[ind..];
                 string[] processedparams = new string[parms.Length];
+                
                 steplog.Started = DateTime.Now;
                 steplog.Outcome = false;
                 steplog.Action = execrow[currentindent].ToString();
                 steplog.parameters = parms;
                 steplog.worksheet = worksheet;
                 steplog.Rownumber = Currentrownumber;
+                string cleanaction;
+                bool ignoreerrors = false;
+                if (steplog.Action[0].ToString()=="*")
+                {
+                    ignoreerrors = true;
+                    cleanaction = steplog.Action[1..];
+                    this.currentdatarow[currentindent] = this.currentdatarow[currentindent][1..];
+                }
+                else
+                {
+                    cleanaction = steplog.Action;
+                }
                 if (StepHistory != null)
                     StepHistory.Add(steplog);
                 for (int i = 0; i < parms.Length; i++)
@@ -257,22 +275,23 @@ namespace EasyExcelFramework
                 }
                 try
                 {
-                    if (registeredactions.ContainsKey(execrow[currentindent].ToString()))
+                    if (registeredactions.ContainsKey(cleanaction))
                     {
-                        bool result = registeredactions[execrow[currentindent].ToString()](this, processedparams);
+                        bool result = registeredactions[cleanaction](this, processedparams);
                     }
                     else
                     {
                         //If it's a worksheet
-                        if (worksheets.ContainsKey(execrow[0 + currentindent].ToString()) ||
-                                                   execrow[0 + currentindent].ToString().ToUpper() == "CALL" ||
-                                                   execrow[0 + currentindent].ToString().ToUpper() == "TEST")
+                        if (worksheets.ContainsKey(cleanaction) ||
+                                                   cleanaction.ToUpper() == "CALL" ||
+                                                   cleanaction.ToUpper() == "TEST")
                         {
                             calltestcase(this.currentdatarow);
                         }
                         else
                         {
-                            throw new InvalidOperationException("Unrecognised Action: " + execrow[currentindent].ToString());
+                            if (!ignoreerrors)
+                                throw new InvalidOperationException("Unrecognised Action: " + execrow[currentindent].ToString());
                         }
                     }
                     steplog.End = DateTime.Now;
@@ -284,7 +303,8 @@ namespace EasyExcelFramework
                     steplog.Ex = ex;
                     if (ex.InnerException != null)
                         System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                    throw;
+                    if (!ignoreerrors)
+                        throw;
                 }
 
             }
@@ -369,7 +389,7 @@ namespace EasyExcelFramework
                             this.Execute(parms[0]);
                             break;
                         default:
-                            this.Execute(parms[0], parms[0..]);
+                            this.Execute(parms[0], parms[1..]);
                             break;
                     }
                     break;
@@ -387,7 +407,7 @@ namespace EasyExcelFramework
                     CalledTestcase.Execute(parms[0]);
                     break;
                 default:
-                    CalledTestcase.Execute(parms[0], parms[0..]);
+                    CalledTestcase.Execute(parms[0], parms[1..]);
                     break;
             }
 
