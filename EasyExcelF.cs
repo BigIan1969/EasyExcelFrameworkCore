@@ -19,10 +19,10 @@ namespace EasyExcelFramework
         public string Worksheet { get => worksheet; }
 
         //Dictionary of variables
-        public Dictionary<string, string>? Locals;
+        public Dictionary<string, dynamic>? Locals;
 
         //Dictionary of Globals
-        public Dictionary<string, string>? Globals;
+        public Dictionary<string, dynamic>? Globals;
 
         public IDictionary? Environ;
         //First worksheet where the framework begins executing
@@ -116,10 +116,10 @@ namespace EasyExcelFramework
             //set indent level
             currentindent = 0;
             //Instanciate variables
-            Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Locals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
 
             if (Globals == null)
-                Globals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                Globals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
 
             Populateworksheets(filename);
             if (string.IsNullOrEmpty(firstworksheet))
@@ -157,9 +157,9 @@ namespace EasyExcelFramework
             Environ = Environment.GetEnvironmentVariables();
 
             //Instanciate variables
-            Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Locals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
             if (Globals == null)
-                Globals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                Globals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
 
             Populateworksheets("Default.xlsx");
             if (string.IsNullOrEmpty(firstworksheet))
@@ -188,7 +188,7 @@ namespace EasyExcelFramework
             Environ = parent.Environ;
 
             //Instanciate variables
-            Locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Locals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
             TestHistory = new List<TestLog>();
             this.defaultpath = Directory.GetCurrentDirectory();
         }
@@ -214,7 +214,7 @@ namespace EasyExcelFramework
                 throw new ArgumentNullException(nameof(worksheets));
             }
             if (Globals == null)
-                Globals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                Globals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
 
             this.worksheet = worksheet;
 
@@ -355,7 +355,9 @@ namespace EasyExcelFramework
             //Loop through the worksheets
             foreach (DataTable table in ds.Tables)
             {
-                worksheets[table.TableName] = table;
+                //First Worksheet with a given name take pre-emininence
+                if (!worksheets.ContainsKey(table.TableName)) 
+                    worksheets[table.TableName] = table;
             }
 
         }

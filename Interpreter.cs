@@ -71,5 +71,30 @@ namespace EasyExcelFramework
             return (string)DExpresso.Eval(expression).ToString();
 
         }
+        public dynamic DynamicEval(EasyExcelF ee, string expression, string[] parms)
+        {
+            DynamicExpresso.Interpreter DExpresso = new DynamicExpresso.Interpreter();
+            foreach (DictionaryEntry variable in ee.Environ)
+            {
+                DExpresso.SetVariable(variable.Key.ToString(), variable.Value);
+            }
+            foreach (var variable in ee.Globals)
+            {
+                DExpresso.SetVariable(variable.Key.ToString(), variable.Value);
+            }
+            foreach (var variable in ee.Locals)
+            {
+                DExpresso.SetVariable(variable.Key.ToString(), variable.Value);
+            }
+            StringConverter sc=new StringConverter();
+            int paramno = 0;
+            foreach (string param in ee.passedparams)
+            {
+                paramno++;
+                DExpresso.SetVariable("PARAM" + paramno, sc.DetectType(param));
+            }
+            return DExpresso.Eval(expression);
+
+        }
     }
 }
