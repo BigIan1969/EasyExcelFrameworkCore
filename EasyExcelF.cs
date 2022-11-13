@@ -61,7 +61,7 @@ namespace EasyExcelFramework
             Console.WriteLine("Passed: " + TestHistory.Count(n => n.Outcome));
             Console.WriteLine("Failed: " + TestHistory.Count(n => !n.Outcome));
             Console.WriteLine();
-
+            bool failed = false;
             foreach (var t in TestHistory)
             {
                 Console.WriteLine(string.Format("Test {0,-20} {1,4} {2} {3} {4}",
@@ -71,29 +71,43 @@ namespace EasyExcelFramework
                     t.End - t.Started,
                     string.Join(", ", t.parameters)
                     ));
+                if (!t.Outcome)
+                    failed = true;
             }
-            Console.WriteLine();
-            Console.WriteLine("Detail:");
-            Console.WriteLine();
-            foreach (var t in TestHistory)
+            if (failed)
             {
-                Console.WriteLine(string.Format("Test {0,-20} {1,4} {2} {3} {4}",
-                    t.Test,
-                    t.Outcome ? "Pass" : "Fail",
-                    t.Started,
-                    t.End - t.Started,
-                    string.Join(", ", t.parameters)
-                    ));
-
-                foreach (var s in t.StepHistory)
+                Console.WriteLine();
+                Console.WriteLine("Detail:");
+                Console.WriteLine();
+                foreach (var t in TestHistory)
                 {
-                    Console.WriteLine(string.Format("\tStep {0} {1} {2,-20} {3} {4}",
-                        s.Started,
-                        s.End-s.Started,
-                        s.Action,
-                        string.Join(", ",s.parameters),
-                        t.Outcome ? "Pass" : "Fail"
-                        ));
+                    if (!t.Outcome)
+                    {
+                        Console.WriteLine(string.Format("Test: {0,-20} {1,4} {2} {3} {4}",
+                            t.Test,
+                            t.Outcome ? "Pass" : "Fail",
+                            t.Started,
+                            t.End - t.Started,
+                            string.Join(", ", t.parameters)
+                            ));
+                        foreach (var s in t.StepHistory)
+                        {
+                            if (s.Outcome)
+                                Console.ForegroundColor = ConsoleColor.Green;
+                            else
+                                Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine(string.Format("\tStep: {0} {1} {2,-20} {3} {4}",
+                                s.Started,
+                                s.End - s.Started,
+                                s.Action,
+                                string.Join(", ", s.parameters),
+                                s.Outcome ? "Pass" : "Fail"
+                                ));
+                            Console.ResetColor();
+                            if (!s.Outcome)
+                                Console.WriteLine("\t\t"+s.Ex);
+                        }
+                    }
                 }
             }
         }
@@ -301,6 +315,7 @@ namespace EasyExcelFramework
                 {
                     steplog.End = DateTime.Now;
                     steplog.Ex = ex;
+                    steplog.Outcome = false;
                     if (ex.InnerException != null)
                         System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                     if (!ignoreerrors)
