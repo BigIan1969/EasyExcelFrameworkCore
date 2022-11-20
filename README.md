@@ -11,3 +11,5 @@ EasyExcelFrameworkCore is designed to be the foundation upon which to build a Ke
 
 ### Install fram NuGet
 Install-Package EasyExcelFramework
+
+See the [Wiki](https://github.com/BigIan1969/EasyExcelFrameworkCore/wiki) for further info
