@@ -8,3 +8,6 @@ The other basic aim, as with all Keyword Frameworks, is to make it as easy to us
 
 ### The Core Framework
 EasyExcelFrameworkCore is designed to be the foundation upon which to build a Keyword Testing Framework.  The Core, therefore, only has the base functionality that any Keyword Testing Framework should need (Resource loading, Variable management, If/Switch/Loop handling etc).  It is designed to work with addons to do any actual testing, e.g. [Easy Excel Framework Selenium](https://github.com/BigIan1969/EasyExcelFrameworkSelenium).
+
+### Install fram NuGet
+Install-Package EasyExcelFramework
