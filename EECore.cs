@@ -8,6 +8,7 @@ namespace EasyExcelFramework
             //Initialise Addon
             ee.RegisterMethod("COMMENT", comments);
             ee.RegisterMethod("COMMENTS", comments);
+            ee.RegisterMethod("COMMENT", comments);
             ee.RegisterMethod("STOP", stop);
             ee.RegisterMethod("LOAD FILE", loadfile);
             ee.RegisterMethod("SET LOCAL", setlocal);

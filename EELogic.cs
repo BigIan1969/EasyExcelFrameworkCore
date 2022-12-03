@@ -98,7 +98,7 @@ namespace EasyExcelFramework
                 int iter;
                 try
                 {
-                    iter = int.Parse(parms[0]);
+                    iter = int.Parse(ee.Interpreter.EvalToString(ee, parms[0], parms[1..]));
                 }
                 catch
                 {
