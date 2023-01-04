@@ -26,18 +26,18 @@ namespace EasyExcelFramework
             ee.RegisterMethod("SET RANDOM", setrandom);
 
         }
-        private bool comments(EasyExcelF ee, string[] parms)
+        private bool comments(EasyExcelF ee, dynamic[] parms)
         {
             //Ignore Comments
             return true;
         }
-        private bool pause(EasyExcelF ee, string[] parms)
+        private bool pause(EasyExcelF ee, dynamic[] parms)
         {
             //pause in seconds
             Thread.Sleep((int)(float.Parse(parms[0].ToString())*1000));
             return true;
         }
-        private bool parameters(EasyExcelF ee, string[] parms)
+        private bool parameters(EasyExcelF ee, dynamic[] parms)
         {
             for (int i = 0; i < parms.Length - 1; i++)
             {
@@ -46,12 +46,12 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool stop(EasyExcelF ee, string[] parms)
+        private bool stop(EasyExcelF ee, dynamic[] parms)
         {
             //Stop test execution
             throw new Exception("Stop Called");
         }
-        private bool loadfile(EasyExcelF ee, string[] parms)
+        private bool loadfile(EasyExcelF ee, dynamic[] parms)
         {
             //check for null
             if (ee.Worksheets[ee.Worksheet].Columns.Count - ee.CurrentIndent == 2)
@@ -72,7 +72,7 @@ namespace EasyExcelFramework
 
             return true;
         }
-        private bool setlocal(EasyExcelF ee, string[] parms)
+        private bool setlocal(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -95,7 +95,7 @@ namespace EasyExcelFramework
 
             return true;
         }
-        private bool setlocaldatetime(EasyExcelF ee, string[] parms)
+        private bool setlocaldatetime(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -118,7 +118,7 @@ namespace EasyExcelFramework
 
             return true;
         }
-        private bool setlocalint(EasyExcelF ee, string[] parms)
+        private bool setlocalint(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -141,7 +141,7 @@ namespace EasyExcelFramework
 
             return true;
         }
-        private bool setlocalfloat(EasyExcelF ee, string[] parms)
+        private bool setlocalfloat(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -164,7 +164,7 @@ namespace EasyExcelFramework
 
             return true;
         }
-        private bool setglobal(EasyExcelF ee, string[] parms)
+        private bool setglobal(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -183,7 +183,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool setglobaldatetime(EasyExcelF ee, string[] parms)
+        private bool setglobaldatetime(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -202,7 +202,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool setglobalfloat(EasyExcelF ee, string[] parms)
+        private bool setglobalfloat(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -221,7 +221,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool setglobalint(EasyExcelF ee, string[] parms)
+        private bool setglobalint(EasyExcelF ee, dynamic[] parms)
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
@@ -241,7 +241,7 @@ namespace EasyExcelFramework
             return true;
         }
 
-        private bool setrandom(EasyExcelF ee, string[] parms)
+        private bool setrandom(EasyExcelF ee, dynamic[] parms)
         {
             //check it has a variable name and a value
             if (ee.Worksheets[ee.Worksheet].Columns.Count - ee.CurrentIndent < 2)

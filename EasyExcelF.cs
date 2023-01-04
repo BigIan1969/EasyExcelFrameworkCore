@@ -28,7 +28,7 @@ namespace EasyExcelFramework
         //First worksheet where the framework begins executing
 
         //RegisteredActions
-        private Dictionary<string, Func<EasyExcelF, string[], bool>> registeredactions;
+        private Dictionary<string, Func<EasyExcelF, dynamic[], bool>> registeredactions;
 
         private string firstworksheet;
 
@@ -43,7 +43,7 @@ namespace EasyExcelFramework
 
         private int currentrownumber;
 
-        public string[] passedparams;
+        public dynamic[] passedparams;
 
         public List<TestStepsLogEntry> StepHistory;
 
@@ -206,7 +206,7 @@ namespace EasyExcelFramework
             TestHistory = new List<TestLog>();
             this.defaultpath = Directory.GetCurrentDirectory();
         }
-        public void Execute(string worksheet = null, string[] passedparameters = null)
+        public void Execute(string worksheet = null, dynamic[] passedparameters = null)
         {
 
             //handle null parameter
@@ -378,13 +378,13 @@ namespace EasyExcelFramework
         }
 
         //register addon
-        public void RegisterMethod(string action, Func<EasyExcelF, string[], bool> passedfunction)
+        public void RegisterMethod(string action, Func<EasyExcelF, dynamic[], bool> passedfunction)
         {
             //if null assign dict
-            registeredactions ??= new Dictionary<string, Func<EasyExcelF, string[], bool>>(StringComparer.OrdinalIgnoreCase);
+            registeredactions ??= new Dictionary<string, Func<EasyExcelF, dynamic[], bool>>(StringComparer.OrdinalIgnoreCase);
             registeredactions[action] = passedfunction;
         }
-        public void calltestcase(string[] parms)
+        public void calltestcase(dynamic[] parms)
         {
             switch (parms[0].ToUpper())
             {
@@ -413,7 +413,7 @@ namespace EasyExcelFramework
             }
 
         }
-        private void callnewtestcase(string[] parms)
+        private void callnewtestcase(dynamic[] parms)
         {
             EasyExcelF CalledTestcase = new EasyExcelF(this);
             switch (parms.Length)
@@ -429,7 +429,7 @@ namespace EasyExcelFramework
             }
 
         }
-        private void test(string[] parms)
+        private void test(dynamic[] parms)
         {
             if (StepHistory != null)
                 throw new InvalidOperationException("Cannot Test within a test");

@@ -4,7 +4,7 @@ namespace EasyExcelFramework
 {
     public class InterpreterClass
     {
-        public bool Eval(EasyExcelF ee, string expression, string[] parms)
+        public bool Eval(EasyExcelF ee, string expression, dynamic[] parms)
         {
             DynamicExpresso.Interpreter DExpresso = new DynamicExpresso.Interpreter();
             foreach (DictionaryEntry variable in ee.Environ)
@@ -47,7 +47,7 @@ namespace EasyExcelFramework
             return (bool)DExpresso.Eval(expression);
 
         }
-        public string EvalToString(EasyExcelF ee, string expression, string[] parms)
+        public string EvalToString(EasyExcelF ee, string expression, dynamic[] parms)
         {
             DynamicExpresso.Interpreter DExpresso = new DynamicExpresso.Interpreter();
             foreach (DictionaryEntry variable in ee.Environ)
@@ -71,7 +71,7 @@ namespace EasyExcelFramework
             return (string)DExpresso.Eval(expression).ToString();
 
         }
-        public dynamic DynamicEval(EasyExcelF ee, string expression, string[] parms)
+        public dynamic DynamicEval(EasyExcelF ee, string expression, dynamic[] parms)
         {
             DynamicExpresso.Interpreter DExpresso = new DynamicExpresso.Interpreter();
             foreach (DictionaryEntry variable in ee.Environ)

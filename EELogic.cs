@@ -17,7 +17,7 @@ namespace EasyExcelFramework
             ee.RegisterMethod("LOOP", loop);
             ee.RegisterMethod("BREAK", localbreak);
         }
-        private bool localif(EasyExcelF ee, string[] parms)
+        private bool localif(EasyExcelF ee, dynamic[] parms)
         {
             if (ee.Interpreter.Eval(ee, parms[0].ToString(), parms[1..]))
             {
@@ -30,7 +30,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool localelse(EasyExcelF ee, string[] parms)
+        private bool localelse(EasyExcelF ee, dynamic[] parms)
         {
             if (ElseActive)
             {
@@ -40,7 +40,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool localswitch(EasyExcelF ee, string[] parms)
+        private bool localswitch(EasyExcelF ee, dynamic[] parms)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool localcase(EasyExcelF ee, string[] parms)
+        private bool localcase(EasyExcelF ee, dynamic[] parms)
         {
             if (SwitchVal == parms[0])
             {
@@ -65,7 +65,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool loop(EasyExcelF ee, string[] parms)
+        private bool loop(EasyExcelF ee, dynamic[] parms)
         {
             if (ee.Worksheets.ContainsKey(parms[0]) & ee.Worksheets.ContainsKey(parms[1]))
             {
@@ -118,7 +118,7 @@ namespace EasyExcelFramework
             }
             return true;
         }
-        private bool localbreak(EasyExcelF ee, string[] parms)
+        private bool localbreak(EasyExcelF ee, dynamic[] parms)
         {
             if (ee.loopactive)
             {

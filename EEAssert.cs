@@ -16,7 +16,7 @@ namespace EasyExcelFramework
             ee.RegisterMethod("ASSERT IF", assertif);
 
         }
-        private bool assertif(EasyExcelF ee, string[] parms)
+        private bool assertif(EasyExcelF ee, dynamic[] parms)
         {
             if (parms.Length==1)
                 Assert.IsTrue(ee.Interpreter.Eval(ee, parms[0], parms));

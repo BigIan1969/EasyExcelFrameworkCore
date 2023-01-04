@@ -6,7 +6,7 @@
         public DateTime End;
         public bool Outcome;
         public string Test;
-        public string[] parameters;
+        public dynamic[] parameters;
         public List<TestStepsLogEntry> StepHistory;
 
     }

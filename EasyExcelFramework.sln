@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExcelFramework", "EasyExcelFramework.csproj", "{BABC3704-CE9D-4D1C-9012-B920957BE789}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTesting", "..\UnitTesting\UnitTesting.csproj", "{93BE2899-CCA1-4FCE-B447-D0221431CDAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTesting", "..\EasyExcelCoreUnitTesting\UnitTesting.csproj", "{0011849B-18B5-4FED-B8C8-7B6BDA1ADCAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,9 +17,10 @@ Global
 		{BABC3704-CE9D-4D1C-9012-B920957BE789}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BABC3704-CE9D-4D1C-9012-B920957BE789}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{BABC3704-CE9D-4D1C-9012-B920957BE789}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{93BE2899-CCA1-4FCE-B447-D0221431CDAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93BE2899-CCA1-4FCE-B447-D0221431CDAC}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{93BE2899-CCA1-4FCE-B447-D0221431CDAC}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{0011849B-18B5-4FED-B8C8-7B6BDA1ADCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0011849B-18B5-4FED-B8C8-7B6BDA1ADCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0011849B-18B5-4FED-B8C8-7B6BDA1ADCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0011849B-18B5-4FED-B8C8-7B6BDA1ADCAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
