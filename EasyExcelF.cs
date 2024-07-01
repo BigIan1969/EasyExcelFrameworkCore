@@ -56,6 +56,7 @@ namespace EasyExcelFramework
         private Func<string, string> screenshot;
         private Func<EasyExcelF, string> report;
         private string defaultpath;
+        private bool ignoreerrors;
         public void finish()
         {
             Console.WriteLine("Passed: " + TestHistory.Count(n => n.Outcome));
@@ -255,18 +256,8 @@ namespace EasyExcelFramework
                 steplog.parameters = parms;
                 steplog.worksheet = worksheet;
                 steplog.Rownumber = Currentrownumber;
-                string cleanaction;
-                bool ignoreerrors = false;
-                if (steplog.Action[0].ToString()=="*")
-                {
-                    ignoreerrors = true;
-                    cleanaction = steplog.Action[1..];
-                    this.currentdatarow[currentindent] = this.currentdatarow[currentindent][1..];
-                }
-                else
-                {
-                    cleanaction = steplog.Action;
-                }
+ //               if (ignoreerrors is null)
+ //                  ignoreerrors = false;
                 if (StepHistory != null)
                     StepHistory.Add(steplog);
                 for (int i = 0; i < parms.Length; i++)
@@ -289,25 +280,7 @@ namespace EasyExcelFramework
                 }
                 try
                 {
-                    if (registeredactions.ContainsKey(cleanaction))
-                    {
-                        bool result = registeredactions[cleanaction](this, processedparams);
-                    }
-                    else
-                    {
-                        //If it's a worksheet
-                        if (worksheets.ContainsKey(cleanaction) ||
-                                                   cleanaction.ToUpper() == "CALL" ||
-                                                   cleanaction.ToUpper() == "TEST")
-                        {
-                            calltestcase(this.currentdatarow);
-                        }
-                        else
-                        {
-                            if (!ignoreerrors)
-                                throw new InvalidOperationException("Unrecognised Action: " + execrow[currentindent].ToString());
-                        }
-                    }
+                    bool result = Command(steplog.Action, processedparams);
                     steplog.End = DateTime.Now;
                     steplog.Outcome = true;
                 }
@@ -321,8 +294,49 @@ namespace EasyExcelFramework
                     if (!ignoreerrors)
                         throw;
                 }
-
+                
             }
+        }
+
+        public bool Command(string cleanaction, string[] processedparams)
+        {
+            if (cleanaction.StartsWith("*"))
+            {
+                ignoreerrors = true;
+                cleanaction = cleanaction[1..];
+                this.currentdatarow[currentindent] = this.currentdatarow[currentindent][1..];
+            }
+            if (registeredactions.ContainsKey(cleanaction))
+            {
+                return registeredactions[cleanaction](this, processedparams);
+            }
+            else
+            {
+                //If it's a worksheet
+                if (worksheets is not null)
+                {
+
+                    if (worksheets.ContainsKey(cleanaction) ||
+                                               cleanaction.ToUpper() == "CALL" ||
+                                               cleanaction.ToUpper() == "TEST")
+                    {
+                        calltestcase(this.currentdatarow);
+                        return true;
+                    }
+                    else
+                    {
+                        if (!ignoreerrors)
+                            throw new InvalidOperationException("Unrecognised Action: " + cleanaction);
+                    }
+                }
+                else
+                {
+                    if (!ignoreerrors)
+                        throw new InvalidOperationException("Unrecognised Action: " + cleanaction);
+
+                }
+            }
+            return false;
         }
 
         public void Populateworksheets(string filename, string defaultsheetname = "Unknown")
