@@ -168,8 +168,8 @@ namespace EasyExcelFramework
         {
             StringConverter sc = new StringConverter();
             //check it has a variable name and a value
-            if (ee.Worksheets[ee.Worksheet].Columns.Count - ee.CurrentIndent < 2)
-                throw new IndexOutOfRangeException("Global Variable cannot be blank or null");
+            //if (ee.Worksheets[ee.Worksheet].Columns.Count - ee.CurrentIndent < 2)
+            //    throw new IndexOutOfRangeException("Global Variable cannot be blank or null");
             //assign variable
             try
             {
@@ -268,4 +268,5 @@ namespace EasyExcelFramework
             return true;
         }
     }
+
 }

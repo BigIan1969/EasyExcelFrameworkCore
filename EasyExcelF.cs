@@ -112,7 +112,7 @@ namespace EasyExcelFramework
                 }
             }
         }
-        public EasyExcelF(string filename = "default.xlsx", string defaultpath = null)
+        public EasyExcelF(string filename = null, string defaultpath = null)
         {
             //Add core
             EECore eec = new EECore(this);
@@ -135,9 +135,9 @@ namespace EasyExcelFramework
 
             if (Globals == null)
                 Globals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
-
-            Populateworksheets(filename);
-            if (string.IsNullOrEmpty(firstworksheet))
+            if (filename != null)
+                Populateworksheets(filename);
+            if (string.IsNullOrEmpty(firstworksheet) & filename != null)
                 throw (new Exception("First worksheet not found: " + filename));
             TestHistory = new List<TestLog>();
             if (defaultpath == null)
@@ -151,7 +151,8 @@ namespace EasyExcelFramework
             Console.WriteLine("Easy Excel Framework");
             Console.WriteLine("====================");
             Console.WriteLine("\nTest Initialised: " + DateTime.Now);
-            Console.WriteLine(string.Format("File: {0}\n",filename));
+            if (filename !=null)
+                Console.WriteLine(string.Format("File: {0}\n",filename));
         }
         public EasyExcelF()
         {
@@ -176,15 +177,15 @@ namespace EasyExcelFramework
             if (Globals == null)
                 Globals = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
 
-            Populateworksheets("Default.xlsx");
-            if (string.IsNullOrEmpty(firstworksheet))
-                throw (new Exception("First worksheet not found: Default.xslx"));
+            //Populateworksheets("Default.xlsx");
+            //if (string.IsNullOrEmpty(firstworksheet))
+            //    throw (new Exception("First worksheet not found: Default.xslx"));
             TestHistory = new List<TestLog>();
             this.defaultpath = Directory.GetCurrentDirectory();
             Console.WriteLine("Easy Excel Framework");
             Console.WriteLine("====================");
             Console.WriteLine("\nTest Initialised: " + DateTime.Now);
-            Console.WriteLine("File: Default.xlsx\n");
+            //Console.WriteLine("File: Default.xlsx\n");
 
         }
         public EasyExcelF(EasyExcelF parent)
